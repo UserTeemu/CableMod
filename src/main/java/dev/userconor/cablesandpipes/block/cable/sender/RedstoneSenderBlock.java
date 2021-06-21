@@ -25,7 +25,7 @@ public class RedstoneSenderBlock extends AbstractRedstoneTransmissionBlock imple
     public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
         if (!world.isClient) {
             if (state.get(POWERED) != getsRedstonePower(pos, state, world)) {
-                world.setBlockState(pos, state.cycle(POWERED), Block.NOTIFY_LISTENERS);
+                world.setBlockState(pos, state = state.cycle(POWERED), Block.NOTIFY_LISTENERS);
                 RedstoneSenderBlockEntity blockEntity = getBlockEntity(pos, world);
                 if (blockEntity != null) blockEntity.sendSignal(state, world);
             }

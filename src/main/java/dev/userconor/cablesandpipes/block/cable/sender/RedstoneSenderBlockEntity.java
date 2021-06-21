@@ -2,7 +2,6 @@ package dev.userconor.cablesandpipes.block.cable.sender;
 
 import dev.userconor.cablesandpipes.CablesAndPipesMod;
 import dev.userconor.cablesandpipes.block.cable.ReceiverLocator;
-import dev.userconor.cablesandpipes.block.cable.RedstoneReceiverBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -43,7 +42,7 @@ public class RedstoneSenderBlockEntity extends BlockEntity {
         }
 
         BlockState receiverState = world.getBlockState(receiverPos);
-        if (receiverState.getBlock() instanceof RedstoneReceiverBlock) {
+        if (receiverState.isOf(REDSTONE_RECEIVER_BLOCK)) {
             REDSTONE_RECEIVER_BLOCK.receive(receiverState, world, receiverPos, state.get(POWERED));
         }
     }

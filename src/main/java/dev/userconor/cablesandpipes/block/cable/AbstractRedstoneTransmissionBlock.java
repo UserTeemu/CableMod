@@ -9,12 +9,14 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.BlockMirror;
+import net.minecraft.util.BlockRotation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
-public abstract class AbstractRedstoneTransmissionBlock extends Block {
-    public static final DirectionProperty FACING = FacingBlock.FACING;
+public abstract class AbstractRedstoneTransmissionBlock extends FacingBlock {
     public static final BooleanProperty POWERED = Properties.POWERED;
 
     public AbstractRedstoneTransmissionBlock() {
@@ -28,5 +30,20 @@ public abstract class AbstractRedstoneTransmissionBlock extends Block {
 
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         return this.getDefaultState().with(FACING, ctx.getPlayerLookDirection());
+    }
+
+    public BlockState rotate(BlockState state, BlockRotation rotation) {
+        return state.with(FACING, rotation.rotate(state.get(FACING)));
+    }
+
+    public BlockState mirror(BlockState state, BlockMirror mirror) {
+        return state.rotate(mirror.getRotation(state.get(FACING)));
+    }
+
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (!moved && !state.isOf(newState.getBlock())) {
+            if (state.get(POWERED)) world.updateNeighborsAlways(pos, this);
+            super.onStateReplaced(state, world, pos, newState, moved);
+        }
     }
 }

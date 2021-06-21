@@ -8,6 +8,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import static dev.userconor.cablesandpipes.CablesAndPipesMod.CABLE_BLOCK;
+import static dev.userconor.cablesandpipes.CablesAndPipesMod.REDSTONE_RECEIVER_BLOCK;
 import static net.minecraft.util.math.Direction.Axis.*;
 
 public class ReceiverLocator {
@@ -34,7 +35,7 @@ public class ReceiverLocator {
             for (Direction direction : getDirections(lastDirection)) {
                 BlockPos tempPos = pos.offset(direction);
                 BlockState tempState = world.getBlockState(tempPos);
-                if (tempState.getBlock() instanceof CableBlock && CABLE_BLOCK.isConnectedTo(direction.getOpposite(), tempState)) {
+                if (tempState.isOf(CABLE_BLOCK) && CABLE_BLOCK.isConnectedTo(direction.getOpposite(), tempState)) {
                     pos = tempPos;
                     lastDirection = direction;
                     newCableBlockFound = true;
@@ -44,7 +45,8 @@ public class ReceiverLocator {
             if (!newCableBlockFound) {
                 for (Direction direction : getDirections(lastDirection)) {
                     BlockPos tempPos = pos.offset(direction);
-                    if (world.getBlockState(tempPos).getBlock() instanceof RedstoneReceiverBlock) {
+                    BlockState tempState = world.getBlockState(tempPos);
+                    if (tempState.isOf(REDSTONE_RECEIVER_BLOCK) && tempState.get(FacingBlock.FACING) == direction) {
                         return tempPos;
                     }
                 }
