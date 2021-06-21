@@ -4,9 +4,10 @@
   "package": "dev.userconor.cablesandpipes.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "RedstoneWireBlockMixin"
   ],
   "client": [
-    "ExampleMixin"
+
   ],
   "injectors": {
     "defaultRequire": 1
