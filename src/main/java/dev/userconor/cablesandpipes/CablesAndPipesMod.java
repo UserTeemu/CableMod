@@ -1,7 +1,8 @@
 package dev.userconor.cablesandpipes;
 
-import dev.userconor.cablesandpipes.block.cable.CableBlock;
+import dev.userconor.cablesandpipes.block.cable.cable.CableBlock;
 import dev.userconor.cablesandpipes.block.cable.RedstoneReceiverBlock;
+import dev.userconor.cablesandpipes.block.cable.cable.CableShape;
 import dev.userconor.cablesandpipes.block.cable.sender.RedstoneSenderBlock;
 import dev.userconor.cablesandpipes.block.cable.sender.RedstoneSenderBlockEntity;
 import net.fabricmc.api.ModInitializer;
@@ -27,6 +28,8 @@ public class CablesAndPipesMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		CableShape.createShapes();
+
 		registerBlockWithItem("cable", CABLE_BLOCK, ItemGroup.TRANSPORTATION);
 		registerBlockWithItem("cable_sender", REDSTONE_SENDER_BLOCK, ItemGroup.REDSTONE);
 		registerBlockWithItem("cable_receiver", REDSTONE_RECEIVER_BLOCK, ItemGroup.REDSTONE);

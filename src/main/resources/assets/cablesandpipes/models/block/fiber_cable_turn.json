@@ -1,0 +1,6 @@
+{
+	"parent": "cablesandpipes:block/template_cable_turn",
+	"textures": {
+	  "end": "cablesandpipes:block/fiber_cable_end"
+	}
+  }

@@ -1,5 +1,6 @@
 package dev.userconor.cablesandpipes.block.cable;
 
+import dev.userconor.cablesandpipes.utils.DirectionUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FacingBlock;
 import net.minecraft.util.math.BlockPos;
@@ -9,20 +10,22 @@ import org.jetbrains.annotations.Nullable;
 
 import static dev.userconor.cablesandpipes.CablesAndPipesMod.CABLE_BLOCK;
 import static dev.userconor.cablesandpipes.CablesAndPipesMod.REDSTONE_RECEIVER_BLOCK;
-import static net.minecraft.util.math.Direction.Axis.*;
 
-public class ReceiverLocator {
+/**
+ * Traces cable blocks to find a receiver. Trace operation starts from the sender.
+ */
+public class CableTracer {
     private final BlockPos senderPos;
     private final World world;
     private final Direction senderFacing;
 
-    public ReceiverLocator(BlockPos senderPos, World world, Direction senderFacing) {
+    public CableTracer(BlockPos senderPos, World world, Direction senderFacing) {
         this.senderPos = senderPos;
         this.world = world;
         this.senderFacing = senderFacing;
     }
 
-    public ReceiverLocator(BlockPos senderPos, World world) {
+    public CableTracer(BlockPos senderPos, World world) {
         this(senderPos, world, world.getBlockState(senderPos).get(FacingBlock.FACING));
     }
 
@@ -61,26 +64,7 @@ public class ReceiverLocator {
     private static Direction[] getDirections(Direction direction) {
         Direction[] array = new Direction[5];
         array[0] = direction;
-        switch (direction.getAxis()) {
-            case X -> {
-                array[1] = Direction.from(Y, Direction.AxisDirection.NEGATIVE);
-                array[2] = Direction.from(Y, Direction.AxisDirection.POSITIVE);
-                array[3] = Direction.from(Z, Direction.AxisDirection.NEGATIVE);
-                array[4] = Direction.from(Z, Direction.AxisDirection.POSITIVE);
-            }
-            case Y -> {
-                array[1] = Direction.from(X, Direction.AxisDirection.NEGATIVE);
-                array[2] = Direction.from(X, Direction.AxisDirection.POSITIVE);
-                array[3] = Direction.from(Z, Direction.AxisDirection.NEGATIVE);
-                array[4] = Direction.from(Z, Direction.AxisDirection.POSITIVE);
-            }
-            case Z -> {
-                array[1] = Direction.from(X, Direction.AxisDirection.NEGATIVE);
-                array[2] = Direction.from(X, Direction.AxisDirection.POSITIVE);
-                array[3] = Direction.from(Y, Direction.AxisDirection.NEGATIVE);
-                array[4] = Direction.from(Y, Direction.AxisDirection.POSITIVE);
-            }
-        }
+        System.arraycopy(DirectionUtil.getNeighborDirections(direction), 0, array, 1, 4);
         return array;
     }
 }

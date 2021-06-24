@@ -1,0 +1,71 @@
+{
+  "variants": {
+    "cable_shape=north_south": {
+      "model": "cablesandpipes:block/fiber_cable_straight"
+    },
+    "cable_shape=east_west": {
+      "model": "cablesandpipes:block/fiber_cable_straight",
+      "y": 90
+    },
+    "cable_shape=up_down": {
+      "model": "cablesandpipes:block/fiber_cable_straight",
+      "x": 90
+    },
+
+
+    "cable_shape=down_north": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "x": 90,
+      "y": -90
+    },
+
+
+    "cable_shape=down_east": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "x": 90,
+      "y": 180
+    },
+    "cable_shape=down_south": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "z": 90
+    },
+    "cable_shape=down_west": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "z": 90
+    },
+
+    "cable_shape=up_north": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "z": 90
+    },
+    "cable_shape=up_east": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "z": 90
+    },
+    "cable_shape=up_south": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "z": 90
+    },
+    "cable_shape=up_west": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "z": 90
+    },
+
+    "cable_shape=north_west": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "z": 90
+    },
+    "cable_shape=north_east": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "z": 90
+    },
+    "cable_shape=south_west": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "z": 90
+    },
+    "cable_shape=south_east": {
+      "model": "cablesandpipes:block/fiber_cable_turn",
+      "z": 90
+    }
+  }
+}

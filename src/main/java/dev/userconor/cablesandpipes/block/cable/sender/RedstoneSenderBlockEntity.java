@@ -1,7 +1,7 @@
 package dev.userconor.cablesandpipes.block.cable.sender;
 
 import dev.userconor.cablesandpipes.CablesAndPipesMod;
-import dev.userconor.cablesandpipes.block.cable.ReceiverLocator;
+import dev.userconor.cablesandpipes.block.cable.CableTracer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -27,7 +27,7 @@ public class RedstoneSenderBlockEntity extends BlockEntity {
 
     public void pairReceiver(BlockPos pos, World world) { // todo figure out a way to get the sender paired
         CompletableFuture.runAsync(() -> {
-            BlockPos receiverLocation = new ReceiverLocator(pos, world).traceReceiver();
+            BlockPos receiverLocation = new CableTracer(pos, world).traceReceiver();
             if (receiverLocation != null) {
                 receiverPos = receiverLocation;
                 REDSTONE_SENDER_BLOCK.setReady(world.getBlockState(pos), world, pos);
