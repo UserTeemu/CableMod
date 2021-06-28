@@ -68,7 +68,7 @@ public class CableBlock extends Block implements Waterloggable {
 
     private void attachToOtherCables(World world, BlockPos pos, BlockState state) {
         CableShape currentShape = state.get(CABLE_SHAPE);
-        boolean beginningConnected = cableIsConnectedInDirection(world, pos.offset(currentShape.to), currentShape.from.getOpposite());
+        boolean beginningConnected = cableIsConnectedInDirection(world, pos.offset(currentShape.from), currentShape.from.getOpposite());
         boolean endConnected = cableIsConnectedInDirection(world, pos.offset(currentShape.to), currentShape.to.getOpposite());
 
         if (!beginningConnected) {
@@ -76,11 +76,10 @@ public class CableBlock extends Block implements Waterloggable {
         }
         if (!endConnected) {
             state = state.with(CABLE_SHAPE, attachCable(world, pos, currentShape, false));
-        } else {
-            return;
         }
-
-        world.setBlockState(pos, state);
+        if (!beginningConnected || !endConnected) {
+            world.setBlockState(pos, state);
+        }
     }
 
     private CableShape getPlacementShape(ItemPlacementContext ctx) {
@@ -88,30 +87,19 @@ public class CableBlock extends Block implements Waterloggable {
         BlockPos pos = ctx.getBlockPos();
 
         Direction[] possibleDirections = ctx.getPlacementDirections();
-        Direction firstDirection = null;
-        Direction secondDirection = null;
+        Direction firstDirection = ctx.getSide().getOpposite();
+        Direction secondDirection = ctx.getPlayerLookDirection().getOpposite();
 
-        for (int i = 0; i < possibleDirections.length * 2; i++) { // loops through possible directions twice
-            Direction direction;
-            if (i < possibleDirections.length) direction = possibleDirections[i];
-            else direction = possibleDirections[i - possibleDirections.length];
-
+        for (Direction direction : possibleDirections) {
             if (direction == firstDirection) continue;
-
             BlockState tempState = world.getBlockState(pos.offset(direction));
             if (tempState.isOf(this) && !cableIsConnected(world, pos, tempState)) {
-                if (firstDirection == null) firstDirection = direction;
-                else if (secondDirection == null) secondDirection = direction;
+                secondDirection = direction;
+                break;
             }
         }
 
-        if (firstDirection != null && secondDirection != null) {
-            return CableShape.shapeOf(firstDirection, secondDirection);
-        } else if (firstDirection != null && firstDirection != ctx.getPlayerLookDirection()) {
-            return CableShape.shapeOf(firstDirection, ctx.getPlayerLookDirection());
-        } else {
-            return CableShape.shapeOf(ctx.getPlayerLookDirection(), ctx.getPlayerLookDirection().getOpposite());
-        }
+        return CableShape.shapeOf(firstDirection, secondDirection);
     }
 
     private CableShape attachCable(World world, BlockPos pos, CableShape currentShape, boolean beginning) {
@@ -119,8 +107,8 @@ public class CableBlock extends Block implements Waterloggable {
             if (currentShape.connectsTo(direction)) continue;
 
             BlockState tempState = world.getBlockState(pos.offset(direction));
-            if (tempState.isOf(this) && !cableIsConnected(world, pos, tempState)) {
-                return CableShape.shapeOf(beginning ? direction.getOpposite() : currentShape.from, beginning ? currentShape.to : direction.getOpposite());
+            if (tempState.isOf(this) && tempState.get(CABLE_SHAPE).connectsTo(direction.getOpposite())) {
+                return CableShape.shapeOf(beginning ? direction : currentShape.from, beginning ? currentShape.to : direction);
             }
         }
 
