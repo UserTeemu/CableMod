@@ -9,15 +9,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.minecraft.block.FacingBlock.FACING;
+import static net.minecraft.block.HorizontalFacingBlock.FACING;
 
 @Mixin(RedstoneWireBlock.class)
 public class RedstoneWireBlockMixin {
 	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;emitsRedstonePower()Z"), method = "connectsTo(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/Direction;)Z", cancellable = true)
 	private static void connectsTo(BlockState state, Direction dir, CallbackInfoReturnable<Boolean> cir) {
-		if (state.isOf(CablesAndPipesMod.REDSTONE_RECEIVER_BLOCK)) {
-			cir.setReturnValue(state.get(FACING).getOpposite() == dir);
-		} else if (state.isOf(CablesAndPipesMod.REDSTONE_SENDER_BLOCK)) {
+		if (dir != null && state.isOf(CablesAndPipesMod.TRANSMITTER_BLOCK)) {
 			cir.setReturnValue(state.get(FACING) == dir);
 		}
 	}

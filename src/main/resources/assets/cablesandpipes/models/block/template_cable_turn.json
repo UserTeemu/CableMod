@@ -4,7 +4,7 @@
 		"turn_joint_side": "cablesandpipes:block/cable_turn_joint_side",
 		"turn_side": "cablesandpipes:block/cable_turn_side",
 		"turn_outer_side": "cablesandpipes:block/cable_turn_outer_side",
-		"particle": "cablesandpipes:block/cable_turn_joint"
+		"particle": "#turn_joint"
 	},
 	"elements": [
 		{

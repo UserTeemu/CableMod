@@ -1,10 +1,9 @@
 package dev.userconor.cablesandpipes;
 
-import dev.userconor.cablesandpipes.block.cable.cable.CableBlock;
-import dev.userconor.cablesandpipes.block.cable.RedstoneReceiverBlock;
-import dev.userconor.cablesandpipes.block.cable.cable.CableShape;
-import dev.userconor.cablesandpipes.block.cable.sender.RedstoneSenderBlock;
-import dev.userconor.cablesandpipes.block.cable.sender.RedstoneSenderBlockEntity;
+import dev.userconor.cablesandpipes.block.cable.CableBlock;
+import dev.userconor.cablesandpipes.block.cable.CableShape;
+import dev.userconor.cablesandpipes.block.transmitter.TransmitterBlock;
+import dev.userconor.cablesandpipes.block.transmitter.TransmitterBlockEntity;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -21,20 +20,20 @@ public class CablesAndPipesMod implements ModInitializer {
 	public static final String modid = "cablesandpipes";
 	public static Logger LOGGER = LogManager.getLogger();
 
-	public static final CableBlock CABLE_BLOCK = new CableBlock();
-	public static final RedstoneSenderBlock REDSTONE_SENDER_BLOCK = new RedstoneSenderBlock();
-	public static final RedstoneReceiverBlock REDSTONE_RECEIVER_BLOCK = new RedstoneReceiverBlock();
-	public static BlockEntityType<RedstoneSenderBlockEntity> REDSTONE_SENDER_BLOCK_ENTITY;
+	public static final CableBlock FIBER_CABLE_BLOCK = new CableBlock();
+	public static final CableBlock COPPER_CABLE_BLOCK = new CableBlock();
+	public static final TransmitterBlock TRANSMITTER_BLOCK = new TransmitterBlock();
+	public static BlockEntityType<TransmitterBlockEntity> REDSTONE_SENDER_BLOCK_ENTITY;
 
 	@Override
 	public void onInitialize() {
 		CableShape.createShapes();
 
-		registerBlockWithItem("cable", CABLE_BLOCK, ItemGroup.TRANSPORTATION);
-		registerBlockWithItem("cable_sender", REDSTONE_SENDER_BLOCK, ItemGroup.REDSTONE);
-		registerBlockWithItem("cable_receiver", REDSTONE_RECEIVER_BLOCK, ItemGroup.REDSTONE);
+		registerBlockWithItem("fiber_cable", FIBER_CABLE_BLOCK, ItemGroup.TRANSPORTATION);
+		registerBlockWithItem("copper_cable", COPPER_CABLE_BLOCK, ItemGroup.TRANSPORTATION);
+		registerBlockWithItem("transmitter", TRANSMITTER_BLOCK, ItemGroup.REDSTONE);
 
-		REDSTONE_SENDER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, new Identifier(modid, "cable_sender"), FabricBlockEntityTypeBuilder.create(RedstoneSenderBlockEntity::new, REDSTONE_SENDER_BLOCK).build(null));
+		REDSTONE_SENDER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, new Identifier(modid, "transmitter"), FabricBlockEntityTypeBuilder.create(TransmitterBlockEntity::new, TRANSMITTER_BLOCK).build(null));
 	}
 
 	private void registerBlockWithItem(String name, Block block, ItemGroup itemGroup) {

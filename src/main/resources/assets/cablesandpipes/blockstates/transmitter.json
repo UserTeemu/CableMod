@@ -1,0 +1,35 @@
+{
+  "variants": {
+    "facing=west,ready=true": {
+      "model": "cablesandpipes:block/transmitter_green"
+    },
+    "facing=north,ready=true": {
+      "model": "cablesandpipes:block/transmitter_green",
+      "y": 90
+    },
+    "facing=east,ready=true": {
+      "model": "cablesandpipes:block/transmitter_green",
+      "y": 180
+    },
+    "facing=south,ready=true": {
+      "model": "cablesandpipes:block/transmitter_green",
+      "y": -90
+    },
+
+    "facing=west,ready=false": {
+      "model": "cablesandpipes:block/transmitter_red"
+    },
+    "facing=north,ready=false": {
+      "model": "cablesandpipes:block/transmitter_red",
+      "y": 90
+    },
+    "facing=east,ready=false": {
+      "model": "cablesandpipes:block/transmitter_red",
+      "y": 180
+    },
+    "facing=south,ready=false": {
+      "model": "cablesandpipes:block/transmitter_red",
+      "y": -90
+    }
+  }
+}

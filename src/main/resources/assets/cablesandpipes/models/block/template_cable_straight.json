@@ -1,6 +1,7 @@
 {
 	"textures": {
-		"cable": "cablesandpipes:block/cable_straight"
+		"cable": "cablesandpipes:block/cable_straight",
+		"particle": "#cable"
 	},
 	"elements": [
 		{

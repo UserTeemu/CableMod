@@ -3,7 +3,6 @@ package dev.userconor.cablesandpipes.utils;
 import net.minecraft.util.math.Direction;
 
 import static net.minecraft.util.math.Direction.Axis.*;
-import static net.minecraft.util.math.Direction.Axis.Y;
 
 public class DirectionUtil {
     public static Direction[] getNeighborDirections(Direction direction) {

@@ -1,7 +1,6 @@
-package dev.userconor.cablesandpipes.block.cable.cable;
+package dev.userconor.cablesandpipes.block.cable;
 
 import dev.userconor.cablesandpipes.CablesAndPipesMod;
-import dev.userconor.cablesandpipes.utils.DirectionUtil;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.entity.ai.pathing.NavigationType;
@@ -45,6 +44,10 @@ public class CableBlock extends Block implements Waterloggable {
         return state.get(CABLE_SHAPE).cableShape;
     }
 
+    public FluidState getFluidState(BlockState state) {
+        return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+    }
+
     @Nullable
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         boolean waterlogged = ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER;
@@ -68,8 +71,8 @@ public class CableBlock extends Block implements Waterloggable {
 
     private void attachToOtherCables(World world, BlockPos pos, BlockState state) {
         CableShape currentShape = state.get(CABLE_SHAPE);
-        boolean beginningConnected = cableIsConnectedInDirection(world, pos.offset(currentShape.from), currentShape.from.getOpposite());
-        boolean endConnected = cableIsConnectedInDirection(world, pos.offset(currentShape.to), currentShape.to.getOpposite());
+        boolean beginningConnected = cableIsConnectedInDirection(world, pos.offset(currentShape.from), currentShape.from.getOpposite(), this);
+        boolean endConnected = cableIsConnectedInDirection(world, pos.offset(currentShape.to), currentShape.to.getOpposite(), this);
 
         if (!beginningConnected) {
             state = state.with(CABLE_SHAPE, attachCable(world, pos, currentShape, true));
@@ -93,7 +96,10 @@ public class CableBlock extends Block implements Waterloggable {
         for (Direction direction : possibleDirections) {
             if (direction == firstDirection) continue;
             BlockState tempState = world.getBlockState(pos.offset(direction));
-            if (tempState.isOf(this) && !cableIsConnected(world, pos, tempState)) {
+            if (
+                    (tempState.isOf(this) && !cableIsConnected(world, pos, tempState, this)) ||
+                    (tempState.isOf(CablesAndPipesMod.TRANSMITTER_BLOCK) && tempState.get(HorizontalFacingBlock.FACING).getOpposite() == direction)
+            ) {
                 secondDirection = direction;
                 break;
             }
@@ -115,15 +121,15 @@ public class CableBlock extends Block implements Waterloggable {
         return currentShape;
     }
 
-    public static boolean cableIsConnected(World world, BlockPos pos, BlockState state) {
+    public static boolean cableIsConnected(World world, BlockPos pos, BlockState state, CableBlock cableType) {
         CableShape shape = state.get(CABLE_SHAPE);
         return
-                cableIsConnectedInDirection(world, pos, shape.from) &&
-                cableIsConnectedInDirection(world, pos, shape.to);
+                cableIsConnectedInDirection(world, pos, shape.from, cableType) &&
+                cableIsConnectedInDirection(world, pos, shape.to, cableType);
     }
 
-    public static boolean cableIsConnectedInDirection(World world, BlockPos pos, Direction direction) {
+    public static boolean cableIsConnectedInDirection(World world, BlockPos pos, Direction direction, CableBlock cableType) {
         BlockState fromState = world.getBlockState(pos);
-        return fromState.isOf(CablesAndPipesMod.CABLE_BLOCK) && fromState.get(CABLE_SHAPE).connectsTo(direction);
+        return fromState.isOf(cableType) && fromState.get(CABLE_SHAPE).connectsTo(direction);
     }
 }

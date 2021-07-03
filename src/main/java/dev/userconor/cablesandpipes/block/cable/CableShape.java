@@ -1,4 +1,4 @@
-package dev.userconor.cablesandpipes.block.cable.cable;
+package dev.userconor.cablesandpipes.block.cable;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.StringIdentifiable;

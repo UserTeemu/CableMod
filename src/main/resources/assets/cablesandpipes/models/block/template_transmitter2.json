@@ -1,0 +1,80 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"smooth_stone": "cablesandpipes:block/smooth_stone",
+		"base_side": "cablesandpipes:block/base_side",
+		"base_side_redstone": "cablesandpipes:block/base_side_redstone",
+		"cable_turn_joint": "cablesandpipes:block/cable_turn_joint",
+		"cable_turn_joint_side": "cablesandpipes:block/cable_turn_joint_side",
+		"redstone_end": "cablesandpipes:block/redstone_end",
+		"pcb": "cablesandpipes:block/pcb",
+		"pcb_edge": "cablesandpipes:block/pcb_edge",
+		"conductor": "cablesandpipes:block/gold_conductor",
+		"status_led": "cablesandpipes:block/status_led_green"
+	},
+	"elements": [
+		{
+			"name": "base",
+			"from": [0, 0, 0],
+			"to": [16, 5, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#base_side"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#base_side_redstone"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#base_side"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#base_side"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#smooth_stone"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#smooth_stone"}
+			}
+		},
+		{
+			"name": "cable_end",
+			"from": [0, 5, 5],
+			"to": [6, 11, 11],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "rotation": 270, "texture": "#cable_turn_joint"},
+				"east": {"uv": [0, 0, 16, 16], "rotation": 90, "texture": "#cable_turn_joint_side"},
+				"south": {"uv": [0, 0, 16, 16], "rotation": 90, "texture": "#cable_turn_joint"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#redstone_end"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#cable_turn_joint_side"}
+			}
+		},
+		{
+			"name": "conductor",
+			"from": [6, 5, 7],
+			"to": [8, 7, 9],
+			"faces": {
+				"north": {"uv": [2, 2, 4, 4], "texture": "#conductor"},
+				"east": {"uv": [0, 2, 2, 4], "texture": "#conductor"},
+				"south": {"uv": [6, 2, 8, 4], "texture": "#conductor"},
+				"west": {"uv": [4, 2, 6, 4], "texture": "#conductor"},
+				"up": {"uv": [4, 2, 2, 0], "texture": "#conductor"},
+				"down": {"uv": [6, 0, 4, 2], "texture": "#conductor"}
+			}
+		},
+		{
+			"name": "pcb",
+			"from": [8, 5, 3],
+			"to": [14, 6, 13],
+			"faces": {
+				"north": {"uv": [5, 0, 8, 0.25], "texture": "#pcb_edge"},
+				"east": {"uv": [0, 0, 5, 0.25], "texture": "#pcb_edge"},
+				"south": {"uv": [13, 0, 16, 0.25], "texture": "#pcb_edge"},
+				"west": {"uv": [8, 0, 13, 0.25], "texture": "#pcb_edge"},
+				"up": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#pcb"}
+			}
+		},
+		{
+			"name": "status_led",
+			"from": [2, 5, 2],
+			"to": [4, 6, 4],
+			"faces": {
+				"north": {"uv": [5.3333, 8, 10.6666, 16], "texture": "#status_led"},
+				"east": {"uv": [5.3333, 0, 10.6666, 8], "texture": "#status_led"},
+				"south": {"uv": [10.6666, 8, 15.9999, 16], "texture": "#status_led"},
+				"west": {"uv": [10.6666, 0, 15.9999, 8], "texture": "#status_led"},
+				"up": {"uv": [0, 0, 5.33333, 16], "texture": "#status_led"},
+				"down": {"uv": [6, 0, 4, 2], "texture": "#status_led"}
+			}
+		}
+	]
+}
