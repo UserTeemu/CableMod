@@ -1,0 +1,6 @@
+{
+	"parent": "cablemod:block/template_transmitter",
+	"textures": {
+	  "status_led": "cablemod:block/status_led_red"
+	}
+  }

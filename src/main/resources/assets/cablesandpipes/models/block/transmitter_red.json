@@ -1,6 +1,0 @@
-{
-	"parent": "cablesandpipes:block/template_transmitter",
-	"textures": {
-	  "status_led": "cablesandpipes:block/status_led_red"
-	}
-  }

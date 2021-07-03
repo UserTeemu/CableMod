@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.userteemu.cablemod.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "RedstoneWireBlockMixin"
+  ],
+  "client": [
+
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

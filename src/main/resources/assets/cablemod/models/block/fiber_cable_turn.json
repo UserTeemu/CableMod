@@ -1,0 +1,6 @@
+{
+	"parent": "cablemod:block/template_cable_turn",
+	"textures": {
+	  "end": "cablemod:block/fiber_cable_end"
+	}
+  }

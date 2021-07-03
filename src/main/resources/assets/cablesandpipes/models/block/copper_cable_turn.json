@@ -1,6 +1,0 @@
-{
-	"parent": "cablesandpipes:block/template_cable_turn",
-	"textures": {
-	  "end": "cablesandpipes:block/copper_cable_end"
-	}
-  }

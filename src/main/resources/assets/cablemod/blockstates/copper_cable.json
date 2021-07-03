@@ -1,0 +1,73 @@
+{
+  "variants": {
+    "cable_shape=north_south": {
+      "model": "cablemod:block/copper_cable_straight"
+    },
+    "cable_shape=east_west": {
+      "model": "cablemod:block/copper_cable_straight",
+      "y": 90
+    },
+    "cable_shape=up_down": {
+      "model": "cablemod:block/copper_cable_straight",
+      "x": 90
+    },
+
+    "cable_shape=down_north": {
+      "model": "cablemod:block/copper_cable_turn",
+      "x": 90,
+      "y": -90
+    },
+    "cable_shape=down_east": {
+      "model": "cablemod:block/copper_cable_turn",
+      "x": 90,
+      "y": 0
+    },
+    "cable_shape=down_south": {
+      "model": "cablemod:block/copper_cable_turn",
+      "x": 90,
+      "y": 90
+    },
+    "cable_shape=down_west": {
+      "model": "cablemod:block/copper_cable_turn",
+      "x": 90,
+      "y": 180
+    },
+
+    "cable_shape=up_north": {
+      "model": "cablemod:block/copper_cable_turn",
+      "x": -90,
+      "y": -90
+    },
+    "cable_shape=up_east": {
+      "model": "cablemod:block/copper_cable_turn",
+      "x": -90,
+      "y": 0
+    },
+    "cable_shape=up_south": {
+      "model": "cablemod:block/copper_cable_turn",
+      "x": -90,
+      "y": 90
+    },
+    "cable_shape=up_west": {
+      "model": "cablemod:block/copper_cable_turn",
+      "x": -90,
+      "y": 180
+    },
+
+    "cable_shape=north_west": {
+      "model": "cablemod:block/copper_cable_turn",
+      "y": -90
+    },
+    "cable_shape=north_east": {
+      "model": "cablemod:block/copper_cable_turn"
+    },
+    "cable_shape=south_west": {
+      "model": "cablemod:block/copper_cable_turn",
+      "y": 180
+    },
+    "cable_shape=south_east": {
+      "model": "cablemod:block/copper_cable_turn",
+      "y": 90
+    }
+  }
+}

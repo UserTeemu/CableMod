@@ -1,29 +1,32 @@
 {
   "schemaVersion": 1,
-  "id": "cablesandpipes",
+  "id": "cablemod",
   "version": "${version}",
 
-  "name": "Cables and Pipes",
-  "description": "Adds cables and pipes.",
+  "name": "CableMod",
+  "description": "Adds cables and transmitters for redstone signal transportation",
   "authors": [
-    "UserTeemu",
-    "Conor"
+    "UserTeemu"
+  ],
+  "contributors": [
+    "Conor",
+    "SmallWhiteFox"
   ],
   "contact": {
-    "sources": "https://github.com/UserTeemu/CablesAndPipes"
+    "sources": "https://github.com/UserTeemu/CableMod"
   },
 
   "license": "GNU GPLv3",
-  "icon": "assets/cablesandpipes/icon.png",
+  "icon": "assets/cablemod/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.userconor.cablesandpipes.CablesAndPipesMod"
+      "dev.userteemu.cablemod.CableMod"
     ]
   },
   "mixins": [
-    "cablesandpipes.mixins.json"
+    "cablemod.mixins.json"
   ],
 
   "depends": {
