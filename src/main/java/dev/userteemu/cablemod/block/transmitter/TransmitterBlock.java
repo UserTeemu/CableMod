@@ -83,6 +83,7 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
         } else if (block == CableMod.COPPER_CABLE_BLOCK) {
             blockEntity.cableType = CableType.COPPER;
         } else {
+            blockEntity.cableType = null;
             setNotReady(state, world, pos, true);
         }
     }

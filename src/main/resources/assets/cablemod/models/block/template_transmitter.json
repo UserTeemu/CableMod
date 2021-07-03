@@ -1,11 +1,12 @@
 {
+	"parent": "block/block",
 	"textures": {
 		"smooth_stone": "minecraft:block/smooth_stone",
 		"base_side": "cablemod:block/base_side",
 		"base_side_redstone": "cablemod:block/base_side_redstone",
 		"cable_turn_joint": "cablemod:block/cable_turn_joint",
 		"cable_turn_joint_side": "cablemod:block/cable_turn_joint_side",
-		"redstone_end": "cablemod:block/redstone_end",
+		"generic_end": "cablemod:block/generic_cable_end",
 		"pcb": "cablemod:block/pcb",
 		"pcb_edge": "cablemod:block/pcb_edge",
 		"conductor": "cablemod:block/gold_conductor",
@@ -33,7 +34,7 @@
 				"north": {"uv": [0, 0, 16, 16], "rotation": 270, "texture": "#cable_turn_joint"},
 				"east": {"uv": [0, 0, 16, 16], "rotation": 90, "texture": "#cable_turn_joint_side"},
 				"south": {"uv": [0, 0, 16, 16], "rotation": 90, "texture": "#cable_turn_joint"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#redstone_end"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#generic_end"},
 				"up": {"uv": [0, 0, 16, 16], "texture": "#cable_turn_joint_side"}
 			}
 		},

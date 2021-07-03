@@ -1,4 +1,5 @@
 {
+	"parent": "block/block",
 	"textures": {
 		"cable": "cablemod:block/cable_straight",
 		"particle": "#cable"

@@ -49,7 +49,6 @@ public class TransmitterBlockEntity extends BlockEntity {
             TRANSMITTER_BLOCK.setNotReady(world, otherTransmitterPos, false);
         }
         otherTransmitterPos = null;
-        cableType = null;
     }
 
     @Override
