@@ -23,7 +23,7 @@ public class CableMod implements ModInitializer {
 	public static final CableBlock FIBER_CABLE_BLOCK = new CableBlock();
 	public static final CableBlock COPPER_CABLE_BLOCK = new CableBlock();
 	public static final TransmitterBlock TRANSMITTER_BLOCK = new TransmitterBlock();
-	public static BlockEntityType<TransmitterBlockEntity> REDSTONE_SENDER_BLOCK_ENTITY;
+	public static BlockEntityType<TransmitterBlockEntity> TRANSMITTER_BLOCK_ENTITY;
 
 	@Override
 	public void onInitialize() {
@@ -33,7 +33,7 @@ public class CableMod implements ModInitializer {
 		registerBlockWithItem("copper_cable", COPPER_CABLE_BLOCK, ItemGroup.TRANSPORTATION);
 		registerBlockWithItem("transmitter", TRANSMITTER_BLOCK, ItemGroup.REDSTONE);
 
-		REDSTONE_SENDER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, new Identifier(modid, "transmitter"), FabricBlockEntityTypeBuilder.create(TransmitterBlockEntity::new, TRANSMITTER_BLOCK).build(null));
+		TRANSMITTER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, new Identifier(modid, "transmitter"), FabricBlockEntityTypeBuilder.create(TransmitterBlockEntity::new, TRANSMITTER_BLOCK).build(null));
 	}
 
 	private void registerBlockWithItem(String name, Block block, ItemGroup itemGroup) {

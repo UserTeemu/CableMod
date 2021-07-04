@@ -2,7 +2,7 @@ package dev.userteemu.cablemod.block.cable;
 
 import dev.userteemu.cablemod.CableMod;
 import dev.userteemu.cablemod.CableRoute;
-import dev.userteemu.cablemod.block.transmitter.TransmitterBlockEntity;
+import dev.userteemu.cablemod.block.transmitter.TransmitterBlock;
 import dev.userteemu.cablemod.utils.CableTracer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
@@ -21,6 +21,8 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.concurrent.CompletableFuture;
 
 public class CableBlock extends Block implements Waterloggable {
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
@@ -53,8 +55,10 @@ public class CableBlock extends Block implements Waterloggable {
 
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (!world.isClient && !state.isOf(newState.getBlock())) {
-            CableRoute route = CableTracer.getCableRouteOfCable(pos, state, world);
-            if (route != null) route.dispose(world);
+            CompletableFuture.runAsync(() -> {
+                CableRoute route = CableTracer.getCableRouteOfCable(pos, state, world);
+                if (route != null) route.disposalScheduled = true;
+            });
         }
 
         super.onStateReplaced(state, world, pos, newState, false);
@@ -110,7 +114,7 @@ public class CableBlock extends Block implements Waterloggable {
             BlockState tempState = world.getBlockState(pos.offset(direction));
             if (
                     (tempState.isOf(this) && !cableIsConnected(world, pos, tempState, this)) ||
-                    (tempState.isOf(CableMod.TRANSMITTER_BLOCK) && tempState.get(HorizontalFacingBlock.FACING).getOpposite() == direction)
+                    (tempState.isOf(CableMod.TRANSMITTER_BLOCK) && tempState.get(TransmitterBlock.FACING).getOpposite() == direction)
             ) {
                 secondDirection = direction;
                 break;

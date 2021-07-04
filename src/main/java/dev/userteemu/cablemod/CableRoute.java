@@ -10,41 +10,59 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.NotNull;
 
-public record CableRoute(@NotNull BlockPos transmitter1Pos, @NotNull BlockPos transmitter2Pos, @NotNull CableType cableType, int routeLength) {
-    public void setup(World world, BlockPos senderPos) {
-        if (senderPos != transmitter1Pos && senderPos != transmitter2Pos) throw new IllegalArgumentException("SenderPos must be one of the transmitter positions.");
+public class CableRoute {
+    @NotNull
+    private final BlockPos senderPos;
+    @NotNull
+    private final BlockPos receiverPos;
+    @NotNull
+    public final CableType cableType;
+    private final int routeLength;
 
-        setupEnd(world, transmitter1Pos, transmitter1Pos.equals(senderPos));
-        setupEnd(world, transmitter2Pos, transmitter2Pos.equals(senderPos));
+    public boolean disposalScheduled = false;
+
+    public CableRoute(@NotNull BlockPos senderPos, @NotNull BlockPos receiverPos, @NotNull CableType cableType, int routeLength) {
+        this.senderPos = senderPos;
+        this.receiverPos = receiverPos;
+        this.cableType = cableType;
+        this.routeLength = routeLength;
     }
 
-    private void setupEnd(World world, BlockPos transmitterPos, boolean isSender) {
-        TransmitterBlockEntity blockEntity = ((TransmitterBlockEntity)world.getBlockEntity(transmitterPos));
-        if (blockEntity == null) return;
-        blockEntity.setupRoute(world, this, isSender);
+    public void setup(World world) {
+        TransmitterBlockEntity receiverBlockEntity = ((TransmitterBlockEntity)world.getBlockEntity(receiverPos));
+        TransmitterBlockEntity senderBlockEntity = ((TransmitterBlockEntity)world.getBlockEntity(senderPos));
+        if (receiverBlockEntity == null || senderBlockEntity == null) return;
+
+        if (receiverBlockEntity.cableRoute != null) receiverBlockEntity.cableRoute.dispose(world);
+        if (senderBlockEntity.cableRoute != null) senderBlockEntity.cableRoute.dispose(world);
+
+        receiverBlockEntity.setupRoute(world, this, false);
+        senderBlockEntity.setupRoute(world, this, true);
     }
 
     public BlockPos getOther(BlockPos thisPos) {
-        if (transmitter1Pos.equals(thisPos)) return transmitter2Pos;
-        else if (transmitter2Pos.equals(thisPos)) return transmitter1Pos;
-        else throw new IllegalArgumentException("SenderPos must be one of the transmitter positions.");
+        if (senderPos.equals(thisPos)) return receiverPos;
+        else if (receiverPos.equals(thisPos)) return senderPos;
+        else throw new IllegalArgumentException("Argument must be one of the transmitter positions.");
     }
 
     public void dispose(WorldAccess world) {
-        disposeEnd(world, transmitter1Pos, true);
-        disposeEnd(world, transmitter2Pos, true);
+        disposalScheduled = false;
+        disposeEnd(world, receiverPos, true);
+        disposeEnd(world, senderPos, true);
     }
 
     /**
      * Dispose, but a specific transmitter position is given special arguments (state and canSetBlockState)
      */
     public void dispose(WorldAccess world, BlockPos pos, BlockState state, boolean canSetBlockState) {
-        if (transmitter1Pos.equals(pos)) {
-            disposeEnd(world, state, transmitter1Pos, canSetBlockState);
-            disposeEnd(world, transmitter2Pos, true);
-        } else if (transmitter2Pos.equals(pos)) {
-            disposeEnd(world, transmitter1Pos, true);
-            disposeEnd(world, state, transmitter2Pos, canSetBlockState);
+        disposalScheduled = false;
+        if (senderPos.equals(pos)) {
+            disposeEnd(world, state, senderPos, canSetBlockState);
+            disposeEnd(world, receiverPos, true);
+        } else if (receiverPos.equals(pos)) {
+            disposeEnd(world, senderPos, true);
+            disposeEnd(world, state, receiverPos, canSetBlockState);
         } else {
             dispose(world);
         }
@@ -68,8 +86,8 @@ public record CableRoute(@NotNull BlockPos transmitter1Pos, @NotNull BlockPos tr
 
     public NbtCompound toNBTCompound() {
         NbtCompound nbtCompound = new NbtCompound();
-        nbtCompound.put("Transmitter1Pos", NbtHelper.fromBlockPos(transmitter1Pos));
-        nbtCompound.put("Transmitter2Pos", NbtHelper.fromBlockPos(transmitter2Pos));
+        nbtCompound.put("SenderPos", NbtHelper.fromBlockPos(senderPos));
+        nbtCompound.put("ReceiverPos", NbtHelper.fromBlockPos(receiverPos));
         nbtCompound.putString("CableType", cableType.asString());
         nbtCompound.putInt("RouteLength", routeLength);
         return nbtCompound;
@@ -77,8 +95,8 @@ public record CableRoute(@NotNull BlockPos transmitter1Pos, @NotNull BlockPos tr
 
     public static CableRoute fromNBTCompound(NbtCompound nbtCompound) {
         return new CableRoute(
-                NbtHelper.toBlockPos(nbtCompound.getCompound("Transmitter1Pos")),
-                NbtHelper.toBlockPos(nbtCompound.getCompound("Transmitter2Pos")),
+                NbtHelper.toBlockPos(nbtCompound.getCompound("SenderPos")),
+                NbtHelper.toBlockPos(nbtCompound.getCompound("ReceiverPos")),
                 switch (nbtCompound.getString("CableType")) {
                     case "COPPER" -> CableType.COPPER;
                     case "FIBER" -> CableType.FIBER;

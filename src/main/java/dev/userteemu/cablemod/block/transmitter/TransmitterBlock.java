@@ -4,6 +4,8 @@ import dev.userteemu.cablemod.CableRoute;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.sound.BlockSoundGroup;
@@ -11,6 +13,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
@@ -26,11 +29,12 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import org.jetbrains.annotations.Nullable;
 
-import static dev.userteemu.cablemod.CableMod.COPPER_CABLE_BLOCK;
-import static dev.userteemu.cablemod.CableMod.FIBER_CABLE_BLOCK;
+import static dev.userteemu.cablemod.CableMod.*;
 
-public class TransmitterBlock extends HorizontalFacingBlock implements BlockEntityProvider {
+public class TransmitterBlock extends BlockWithEntity implements BlockEntityProvider {
+    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final BooleanProperty READY = BooleanProperty.of("ready");
     public static final BooleanProperty IS_SENDER = BooleanProperty.of("is_sender");
     public static final IntProperty POWER = Properties.POWER;
@@ -72,7 +76,6 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
             if (!world.isClient()) {
                 TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
                 if (blockEntity == null) return ActionResult.FAIL;
-
                 if (blockEntity.cableRoute != null) {
                     blockEntity.cableRoute.dispose(world);
                 }
@@ -119,7 +122,7 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
     private void checkCableChanges(CableRoute cableRoute, BlockState state, World world, BlockPos pos) {
         Block block = world.getBlockState(pos.offset(state.get(FACING))).getBlock();
 
-        if (block != cableRoute.cableType().cableBlock) {
+        if (block != cableRoute.cableType.cableBlock) {
             cableRoute.dispose(world);
         }
     }
@@ -131,6 +134,17 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
 
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new TransmitterBlockEntity(pos, state);
+    }
+
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return BlockWithEntity.checkType(type, TRANSMITTER_BLOCK_ENTITY, world.isClient ? null : this::serverTick);
+    }
+
+    private void serverTick(World world, BlockPos pos, BlockState state, TransmitterBlockEntity blockEntity) {
+        if (blockEntity != null) {
+            blockEntity.serverTick(world, pos, state);
+        }
     }
 
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
@@ -161,6 +175,10 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
 
     public boolean emitsRedstonePower(BlockState state) {
         return true;
+    }
+
+    public BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
     }
 
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {

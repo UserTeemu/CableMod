@@ -8,7 +8,6 @@ import dev.userteemu.cablemod.block.cable.CableType;
 import dev.userteemu.cablemod.block.transmitter.TransmitterBlock;
 import dev.userteemu.cablemod.block.transmitter.TransmitterBlockEntity;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -47,7 +46,7 @@ public class CableTracer {
                 pos = tempPos;
                 lastShape = tempState.get(CABLE_SHAPE);
                 lastDirection = direction;
-            } else if (tempState.isOf(CableMod.TRANSMITTER_BLOCK) && tempState.get(HorizontalFacingBlock.FACING) == direction.getOpposite()) {
+            } else if (tempState.isOf(CableMod.TRANSMITTER_BLOCK) && tempState.get(TransmitterBlock.FACING) == direction.getOpposite()) {
                 TransmitterBlockEntity blockEntity = TransmitterBlock.getBlockEntity(tempPos, world);
                 return blockEntity != null ? blockEntity.cableRoute : null;
             }
@@ -83,7 +82,7 @@ public class CableTracer {
                 lastShape = tempState.get(CABLE_SHAPE);
                 lastDirection = direction;
                 routeLength++;
-            } else if (tempState.isOf(CableMod.TRANSMITTER_BLOCK) && tempState.get(HorizontalFacingBlock.FACING) == direction.getOpposite()) {
+            } else if (tempState.isOf(CableMod.TRANSMITTER_BLOCK) && tempState.get(TransmitterBlock.FACING) == direction.getOpposite()) {
                 otherTransmitterPos = pos;
                 break;
             } else {

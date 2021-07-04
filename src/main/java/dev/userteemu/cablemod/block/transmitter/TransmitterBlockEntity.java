@@ -5,7 +5,6 @@ import dev.userteemu.cablemod.CableRoute;
 import dev.userteemu.cablemod.utils.CableTracer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
@@ -15,6 +14,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 import static dev.userteemu.cablemod.CableMod.TRANSMITTER_BLOCK;
 import static dev.userteemu.cablemod.block.transmitter.TransmitterBlock.*;
 
@@ -22,15 +24,34 @@ public class TransmitterBlockEntity extends BlockEntity {
     @Nullable
     public CableRoute cableRoute = null;
 
+    @Nullable
+    public CompletableFuture<CableRoute> cableRouteTrace = null;
+
     public TransmitterBlockEntity(BlockPos pos, BlockState state) {
-        super(CableMod.REDSTONE_SENDER_BLOCK_ENTITY, pos, state);
+        super(CableMod.TRANSMITTER_BLOCK_ENTITY, pos, state);
     }
 
     public void createRoute(BlockPos pos, World world) {
         if (world.isClient()) throw new IllegalStateException("Routes should not be created in client worlds!");
-        CableRoute route = CableTracer.createCableRoute(pos, world, world.getBlockState(pos).get(HorizontalFacingBlock.FACING));
-        if (route != null) {
-            route.setup(world, pos);
+
+        cableRouteTrace = CompletableFuture.supplyAsync(() ->
+                CableTracer.createCableRoute(pos, world, world.getBlockState(pos).get(FACING))
+        );
+    }
+
+    public void serverTick(World world, BlockPos pos, BlockState state) {
+        if (cableRouteTrace != null && cableRouteTrace.isDone()) {
+            try {
+                CableRoute result = cableRouteTrace.get();
+                if (result != null) (cableRoute = result).setup(world);
+            } catch (InterruptedException | ExecutionException e) {
+                CableMod.LOGGER.warn("Error while setting up cable route result from cable tracing operation", e);
+            }
+            cableRouteTrace = null;
+        }
+
+        if (cableRoute != null && cableRoute.disposalScheduled) {
+            cableRoute.dispose(world);
         }
     }
 
@@ -82,7 +103,7 @@ public class TransmitterBlockEntity extends BlockEntity {
 
         BlockState state = world.getBlockState(pos);
         if (state != null) {
-            world.setBlockState(pos, state.with(READY, true).with(IS_SENDER, isSender), Block.NOTIFY_LISTENERS);
+            boolean setBlockState = world.setBlockState(pos, state.with(READY, true).with(IS_SENDER, isSender), Block.NOTIFY_LISTENERS);
             world.updateNeighbors(pos.offset(state.get(FACING).getOpposite()), state.getBlock());
         }
 
