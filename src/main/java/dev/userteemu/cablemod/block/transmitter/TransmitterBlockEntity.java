@@ -70,7 +70,7 @@ public class TransmitterBlockEntity extends BlockEntity {
 
     public void receive(BlockState state, int power, World world) {
         if (state.get(IS_SENDER)) throw new IllegalStateException("Senders may not receive signals!");
-        world.setBlockState(pos, state.with(POWER, power), Block.NOTIFY_LISTENERS);
+        world.setBlockState(pos, state.with(POWER, power), Block.NOTIFY_LISTENERS | Block.NOTIFY_NEIGHBORS);
         world.updateNeighborsAlways(pos.offset(state.get(FACING).getOpposite()), TRANSMITTER_BLOCK);
     }
 
@@ -92,7 +92,7 @@ public class TransmitterBlockEntity extends BlockEntity {
     public void onRouteDisposed(WorldAccess world, BlockState state, BlockPos pos, boolean canSetBlockState) {
         cableRoute = null;
         if (state != null && canSetBlockState) {
-            world.setBlockState(pos, state.with(READY, false).with(POWER, state.get(IS_SENDER) ? state.get(POWER) : 0), Block.NOTIFY_LISTENERS);
+            world.setBlockState(pos, state.with(READY, false).with(POWER, state.get(IS_SENDER) ? state.get(POWER) : 0), Block.NOTIFY_LISTENERS | Block.NOTIFY_NEIGHBORS);
             world.updateNeighbors(pos.offset(state.get(FACING).getOpposite()), state.getBlock());
         }
     }
@@ -103,7 +103,7 @@ public class TransmitterBlockEntity extends BlockEntity {
 
         BlockState state = world.getBlockState(pos);
         if (state != null) {
-            boolean setBlockState = world.setBlockState(pos, state.with(READY, true).with(IS_SENDER, isSender), Block.NOTIFY_LISTENERS);
+            world.setBlockState(pos, state.with(READY, true).with(IS_SENDER, isSender), Block.NOTIFY_LISTENERS);
             world.updateNeighbors(pos.offset(state.get(FACING).getOpposite()), state.getBlock());
         }
 

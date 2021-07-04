@@ -34,8 +34,6 @@ public enum CableShape implements StringIdentifiable {
     SOUTH_WEST(SOUTH, WEST),
     SOUTH_EAST(SOUTH, EAST);
 
-    public static final int cableThickness = 6;
-
     public final Direction from;
     public final Direction to;
     public VoxelShape cableShape;

@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 public class CableMod implements ModInitializer {
 	public static final String modid = "cablemod";
-	public static Logger LOGGER = LogManager.getLogger();
+	public static final Logger LOGGER = LogManager.getLogger();
 
 	public static final CableBlock FIBER_CABLE_BLOCK = new CableBlock();
 	public static final CableBlock COPPER_CABLE_BLOCK = new CableBlock();
