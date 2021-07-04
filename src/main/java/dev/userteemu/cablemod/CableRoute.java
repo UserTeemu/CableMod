@@ -59,6 +59,13 @@ public record CableRoute(@NotNull BlockPos transmitter1Pos, @NotNull BlockPos tr
         if (blockEntity != null) blockEntity.onRouteDisposed(world, state, transmitterPos, canSetBlockState);
     }
 
+    public int getRedstoneSignalStrength(int inputPower) {
+        return Math.min(15, Math.max(0, switch (cableType) {
+            case FIBER -> inputPower; // signal is sustained forever
+            case COPPER -> inputPower - (routeLength / 4); // signal is sustained for 60 blocks if input is maximum
+        }));
+    }
+
     public NbtCompound toNBTCompound() {
         NbtCompound nbtCompound = new NbtCompound();
         nbtCompound.put("Transmitter1Pos", NbtHelper.fromBlockPos(transmitter1Pos));

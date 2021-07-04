@@ -15,8 +15,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.CompletableFuture;
-
 import static dev.userteemu.cablemod.CableMod.TRANSMITTER_BLOCK;
 import static dev.userteemu.cablemod.block.transmitter.TransmitterBlock.*;
 
@@ -36,7 +34,7 @@ public class TransmitterBlockEntity extends BlockEntity {
         }
     }
 
-    public void sendSignal(boolean powered, World world) {
+    public void sendSignal(int inputPower, World world) {
         if (cableRoute == null) return;
 
         BlockPos otherTransmitterPos = cableRoute.getOther(pos);
@@ -44,14 +42,15 @@ public class TransmitterBlockEntity extends BlockEntity {
         if (receiverBlockState == null || !receiverBlockState.isOf(TRANSMITTER_BLOCK)) return;
         TransmitterBlockEntity receiver = getBlockEntity(otherTransmitterPos, world);
         if (receiver != null) {
-            receiver.receive(receiverBlockState, powered, world);
+            int receiverPower = cableRoute.getRedstoneSignalStrength(inputPower);
+            receiver.receive(receiverBlockState, receiverPower, world);
         }
     }
 
-    public void receive(BlockState state, boolean signalState, World world) {
+    public void receive(BlockState state, int power, World world) {
         if (state.get(IS_SENDER)) throw new IllegalStateException("Senders may not receive signals!");
-        world.setBlockState(pos, state.with(POWERED, signalState), Block.NOTIFY_LISTENERS);
-        world.updateNeighborsAlways(pos, TRANSMITTER_BLOCK);
+        world.setBlockState(pos, state.with(POWER, power), Block.NOTIFY_LISTENERS);
+        world.updateNeighborsAlways(pos.offset(state.get(FACING).getOpposite()), TRANSMITTER_BLOCK);
     }
 
     @Override
@@ -72,7 +71,8 @@ public class TransmitterBlockEntity extends BlockEntity {
     public void onRouteDisposed(WorldAccess world, BlockState state, BlockPos pos, boolean canSetBlockState) {
         cableRoute = null;
         if (state != null && canSetBlockState) {
-            world.setBlockState(pos, state.with(READY, false).with(POWERED, state.get(IS_SENDER) ? state.get(POWERED) : false), Block.NOTIFY_LISTENERS);
+            world.setBlockState(pos, state.with(READY, false).with(POWER, state.get(IS_SENDER) ? state.get(POWER) : 0), Block.NOTIFY_LISTENERS);
+            world.updateNeighbors(pos.offset(state.get(FACING).getOpposite()), state.getBlock());
         }
     }
 
@@ -83,6 +83,7 @@ public class TransmitterBlockEntity extends BlockEntity {
         BlockState state = world.getBlockState(pos);
         if (state != null) {
             world.setBlockState(pos, state.with(READY, true).with(IS_SENDER, isSender), Block.NOTIFY_LISTENERS);
+            world.updateNeighbors(pos.offset(state.get(FACING).getOpposite()), state.getBlock());
         }
 
         world.playSound(null, pos, SoundEvents.BLOCK_STONE_BUTTON_CLICK_OFF, SoundCategory.BLOCKS, 0.3F, 0.5F);

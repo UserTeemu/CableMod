@@ -11,6 +11,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
@@ -32,11 +33,11 @@ import static dev.userteemu.cablemod.CableMod.FIBER_CABLE_BLOCK;
 public class TransmitterBlock extends HorizontalFacingBlock implements BlockEntityProvider {
     public static final BooleanProperty READY = BooleanProperty.of("ready");
     public static final BooleanProperty IS_SENDER = BooleanProperty.of("is_sender");
-    public static final BooleanProperty POWERED = Properties.POWERED;
+    public static final IntProperty POWER = Properties.POWER;
 
     public TransmitterBlock() {
         super(FabricBlockSettings.of(Material.DECORATION).breakInstantly().sounds(BlockSoundGroup.WOOD)); // same settings as redstone repeaters
-        this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(POWERED, false).with(IS_SENDER, false).with(READY, false));
+        this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(POWER, 0).with(IS_SENDER, false).with(READY, false));
     }
 
     @Override
@@ -103,10 +104,13 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
                 checkCableChanges(cableRoute, state, world, pos);
             }
 
-            if (state.get(IS_SENDER) && state.get(POWERED) != getsRedstonePower(pos, state, world)) {
-                world.setBlockState(pos, state = state.cycle(POWERED), Block.NOTIFY_LISTENERS);
-                if (blockEntity != null) {
-                    blockEntity.sendSignal(state.get(POWERED), world);
+            if (state.get(IS_SENDER)) {
+                int gottenRedstonePower = world.getEmittedRedstonePower(pos.offset(state.get(FACING).getOpposite()), state.get(FACING).getOpposite());
+                if (state.get(POWER) != gottenRedstonePower) {
+                    world.setBlockState(pos, state.with(POWER, gottenRedstonePower), Block.NOTIFY_LISTENERS);
+                    if (blockEntity != null) {
+                        blockEntity.sendSignal(gottenRedstonePower, world);
+                    }
                 }
             }
         }
@@ -118,11 +122,6 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
         if (block != cableRoute.cableType().cableBlock) {
             cableRoute.dispose(world);
         }
-    }
-
-    private boolean getsRedstonePower(BlockPos pos, BlockState state, World world) {
-        Direction direction = state.get(FACING).getOpposite();
-        return world.getEmittedRedstonePower(pos.offset(direction), direction) > 0;
     }
 
     public static TransmitterBlockEntity getBlockEntity(BlockPos pos, BlockView world) {
@@ -157,7 +156,7 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
 
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
         if (state.get(IS_SENDER)) return 0;
-        return state.get(POWERED) && state.get(FACING) == direction ? 15 : 0;
+        return state.get(FACING) == direction ? state.get(POWER) : 0;
     }
 
     public boolean emitsRedstonePower(BlockState state) {
@@ -165,7 +164,7 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
     }
 
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(READY, FACING, IS_SENDER, POWERED);
+        builder.add(READY, FACING, IS_SENDER, POWER);
     }
 
     private static class Hitboxes {
