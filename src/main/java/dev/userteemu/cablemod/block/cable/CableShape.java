@@ -59,6 +59,12 @@ public enum CableShape implements StringIdentifiable {
         return from == direction || to == direction;
     }
 
+    public Direction getOtherDirection(Direction direction) {
+        if (direction == from) return to;
+        else if (direction == to) return from;
+        else throw new IllegalArgumentException("Direction must be either \"from\" direction or \"to\" direction");
+    }
+
     public boolean isStraight() {
         return from == to.getOpposite();
     }

@@ -32,7 +32,7 @@ public class CableBlock extends Block implements Waterloggable {
         builder.add(WATERLOGGED, CABLE_SHAPE);
     }
 
-    public boolean isConnectedTo(Direction direction, BlockState state) {
+    public static boolean isConnectedTo(Direction direction, BlockState state) {
         return state.get(CABLE_SHAPE).connectsTo(direction);
     }
 
@@ -46,6 +46,11 @@ public class CableBlock extends Block implements Waterloggable {
 
     public FluidState getFluidState(BlockState state) {
         return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
+        // todo
     }
 
     @Nullable

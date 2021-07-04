@@ -1,7 +1,6 @@
 package dev.userteemu.cablemod.block.transmitter;
 
-import dev.userteemu.cablemod.CableMod;
-import dev.userteemu.cablemod.block.cable.CableType;
+import dev.userteemu.cablemod.CableRoute;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -25,6 +24,10 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
+
+import static dev.userteemu.cablemod.CableMod.COPPER_CABLE_BLOCK;
+import static dev.userteemu.cablemod.CableMod.FIBER_CABLE_BLOCK;
 
 public class TransmitterBlock extends HorizontalFacingBlock implements BlockEntityProvider {
     public static final BooleanProperty READY = BooleanProperty.of("ready");
@@ -36,55 +39,84 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
         this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(POWERED, false).with(IS_SENDER, false).with(READY, false));
     }
 
+    @Override
+    public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
+        if (!world.isClient()) {
+            TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
+            if (blockEntity != null && blockEntity.cableRoute != null) {
+                blockEntity.cableRoute.dispose(world);
+            }
+        }
+    }
+
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(FACING, ctx.getPlayerFacing());
+        Direction direction = null;
+        int directionsWithCables = 0;
+        for (Direction tempDirection : ctx.getPlacementDirections()) {
+            if (tempDirection.getAxis() == Direction.Axis.Y) continue;
+
+            BlockState state = ctx.getWorld().getBlockState(ctx.getBlockPos().offset(tempDirection));
+            if (state.isOf(FIBER_CABLE_BLOCK) || state.isOf(COPPER_CABLE_BLOCK)) {
+                direction = tempDirection;
+                directionsWithCables++;
+            }
+        }
+
+        return this.getDefaultState().with(FACING, directionsWithCables == 1 ? direction : ctx.getPlayerFacing());
     }
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (Hitboxes.isHittingButton(state.get(FACING), hit.getPos().subtract(pos.getX(), pos.getY(), pos.getZ()), 0.03D)) {
-            TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
-            setNotReady(state, world, pos, blockEntity, true);
-            blockEntity.pairReceiver(pos, world);
-            world.playSound(player, pos, SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.BLOCKS, 0.3F, 0.6F);
-            return ActionResult.SUCCESS;
-        }
+            if (!world.isClient()) {
+                TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
+                if (blockEntity == null) return ActionResult.FAIL;
 
-        return super.onUse(state, world, pos, player, hand, hit);
+                if (blockEntity.cableRoute != null) {
+                    blockEntity.cableRoute.dispose(world);
+                }
+                blockEntity.createRoute(pos, world);
+                world.playSound(null, pos, SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.BLOCKS, 0.3F, 0.6F);
+            }
+            return ActionResult.success(world.isClient);
+        } else {
+            return super.onUse(state, world, pos, player, hand, hit);
+        }
     }
 
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (!moved && !state.isOf(newState.getBlock())) {
-            if (state.get(POWERED)) world.updateNeighborsAlways(pos, this);
-            super.onStateReplaced(state, world, pos, newState, false);
+        if (!world.isClient && !state.isOf(newState.getBlock())) {
+            TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
+            if (blockEntity != null && blockEntity.cableRoute != null) {
+                blockEntity.cableRoute.dispose(world, pos, state, false);
+            }
         }
+
+        super.onStateReplaced(state, world, pos, newState, false);
     }
 
     public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
         if (!world.isClient) {
-            checkCableChanges(state, world, pos);
+            TransmitterBlockEntity blockEntity = state.get(READY) ? getBlockEntity(pos, world) : null; // if not ready, it's null to save resources (because the field isn't actually used)
+            CableRoute cableRoute = blockEntity != null ? blockEntity.cableRoute : null;
+            if (cableRoute != null) {
+                checkCableChanges(cableRoute, state, world, pos);
+            }
 
             if (state.get(IS_SENDER) && state.get(POWERED) != getsRedstonePower(pos, state, world)) {
                 world.setBlockState(pos, state = state.cycle(POWERED), Block.NOTIFY_LISTENERS);
-                if (state.get(READY)) {
-                    TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
-                    if (blockEntity != null && blockEntity.otherTransmitterPos != null) blockEntity.sendSignal(state, world);
+                if (blockEntity != null) {
+                    blockEntity.sendSignal(state.get(POWERED), world);
                 }
             }
         }
     }
 
-    private void checkCableChanges(BlockState state, World world, BlockPos pos) {
-        TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
+    private void checkCableChanges(CableRoute cableRoute, BlockState state, World world, BlockPos pos) {
         Block block = world.getBlockState(pos.offset(state.get(FACING))).getBlock();
 
-        if (block == CableMod.FIBER_CABLE_BLOCK) {
-            blockEntity.cableType = CableType.FIBER;
-        } else if (block == CableMod.COPPER_CABLE_BLOCK) {
-            blockEntity.cableType = CableType.COPPER;
-        } else {
-            blockEntity.cableType = null;
-            setNotReady(state, world, pos, true);
+        if (block != cableRoute.cableType().cableBlock) {
+            cableRoute.dispose(world);
         }
     }
 
@@ -93,43 +125,9 @@ public class TransmitterBlock extends HorizontalFacingBlock implements BlockEnti
         return world.getEmittedRedstonePower(pos.offset(direction), direction) > 0;
     }
 
-    public void receive(BlockState state, World world, BlockPos pos, boolean signalState) {
-        if (state.get(IS_SENDER)) throw new IllegalStateException("Senders may not receive signals!");
-        world.setBlockState(pos, state.with(POWERED, signalState), Block.NOTIFY_LISTENERS);
-        world.updateNeighborsAlways(pos, this);
-    }
-
-    public void setNotReady(World world, BlockPos pos, boolean notifyOtherEnd) {
-        setNotReady(world.getBlockState(pos), world, pos, notifyOtherEnd);
-    }
-
-    public void setNotReady(BlockState state, World world, BlockPos pos, boolean notifyOtherEnd) {
-        setNotReady(state, world, pos, getBlockEntity(pos, world), notifyOtherEnd);
-    }
-
-    public void setNotReady(BlockState state, World world, BlockPos pos, TransmitterBlockEntity blockEntity, boolean notifyOtherEnd) {
-        if (!state.get(READY)) return;
-        world.setBlockState(pos, state.with(READY, false).with(POWERED, state.get(IS_SENDER) ? state.get(POWERED) : false), Block.NOTIFY_LISTENERS);
-        if (blockEntity != null) {
-            blockEntity.unpair(world, notifyOtherEnd);
-        }
-    }
-
-    public void setReady(World world, BlockPos pos, boolean isSender) {
-        setReady(world.getBlockState(pos), world, pos, isSender);
-    }
-
-    public void setReady(BlockState state, World world, BlockPos pos, boolean isSender) {
-        world.setBlockState(pos, state.with(READY, true).with(IS_SENDER, isSender), Block.NOTIFY_LISTENERS);
-        world.playSound(null, pos, SoundEvents.BLOCK_STONE_BUTTON_CLICK_OFF, SoundCategory.BLOCKS, 0.3F, 0.5F);
-    }
-
-    public CableType getCableType(World world, BlockPos pos) {
-        return getBlockEntity(pos, world).cableType;
-    }
-
-    public TransmitterBlockEntity getBlockEntity(BlockPos pos, BlockView world) {
-        return ((TransmitterBlockEntity)world.getBlockEntity(pos));
+    public static TransmitterBlockEntity getBlockEntity(BlockPos pos, BlockView world) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        return blockEntity instanceof TransmitterBlockEntity ? (TransmitterBlockEntity)blockEntity : null;
     }
 
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
