@@ -12,6 +12,7 @@ import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,12 +25,13 @@ import static dev.userteemu.cablemod.block.cable.CableType.FIBER;
  */
 public class CableTracer {
     /**
-     * Traces to a transmitter from a cable block and retrieves a CableRoute
+     * Tries to retrieve a cable route that this cable is in by tracing a transmitter and getting its cable route.
+     * If a transmitter isn't found in one end, there can't (or at least shouldn't) be a cable route anyway, so there is no point in trying the other way. In such case, null is returned.
      * @param beginningPos position of a cable block
      * @return traced transmitter's CableRoute, null if there is no transmitter or the route is null
      */
     @Nullable
-    public static CableRoute traceEitherTransmitter(@NotNull BlockPos beginningPos, BlockState state, @NotNull World world) {
+    public static CableRoute getCableRouteOfCable(@NotNull BlockPos beginningPos, BlockState state, @NotNull WorldAccess world) {
         BlockPos pos = beginningPos;
         CableShape lastShape = state.get(CABLE_SHAPE);
         Direction lastDirection = lastShape.to; // either "from" or "to" direction of the shape, doesn't matter which

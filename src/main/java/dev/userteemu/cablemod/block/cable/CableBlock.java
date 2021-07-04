@@ -1,6 +1,9 @@
 package dev.userteemu.cablemod.block.cable;
 
 import dev.userteemu.cablemod.CableMod;
+import dev.userteemu.cablemod.CableRoute;
+import dev.userteemu.cablemod.block.transmitter.TransmitterBlockEntity;
+import dev.userteemu.cablemod.utils.CableTracer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.entity.ai.pathing.NavigationType;
@@ -48,9 +51,13 @@ public class CableBlock extends Block implements Waterloggable {
         return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
     }
 
-    @Override
-    public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
-        // todo
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (!world.isClient && !state.isOf(newState.getBlock())) {
+            CableRoute route = CableTracer.getCableRouteOfCable(pos, state, world);
+            if (route != null) route.dispose(world);
+        }
+
+        super.onStateReplaced(state, world, pos, newState, false);
     }
 
     @Nullable
