@@ -78,7 +78,7 @@ public class TransmitterBlockEntity extends BlockEntity {
     public void readNbt(NbtCompound tag) {
         super.readNbt(tag);
         if (tag.contains("CableRoute")) {
-            cableRoute = CableRoute.fromNBTCompound(tag);
+            cableRoute = CableRoute.fromNBTCompound(tag.getCompound("CableRoute"));
         }
     }
 
