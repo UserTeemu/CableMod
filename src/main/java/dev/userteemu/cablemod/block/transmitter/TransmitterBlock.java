@@ -72,10 +72,11 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (Hitboxes.isHittingButton(state.get(FACING), hit.getPos().subtract(pos.getX(), pos.getY(), pos.getZ()), 0.03D)) {
+        TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
+
+        if (blockEntity != null && Hitboxes.isHittingButton(state.get(FACING), hit.getPos().subtract(pos.getX(), pos.getY(), pos.getZ()), 0.03D)) {
+            if (blockEntity.cableRouteTrace != null) return ActionResult.FAIL;
             if (!world.isClient()) {
-                TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
-                if (blockEntity == null) return ActionResult.FAIL;
                 if (blockEntity.cableRoute != null) {
                     blockEntity.cableRoute.dispose(world);
                 }
