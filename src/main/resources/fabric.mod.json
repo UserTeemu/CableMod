@@ -16,7 +16,7 @@
     "sources": "https://github.com/UserTeemu/CableMod"
   },
 
-  "license": "GNU GPLv3",
+  "license": "LGPL-3.0-or-later",
   "icon": "assets/cablemod/icon.png",
 
   "environment": "*",
