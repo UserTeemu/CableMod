@@ -13,10 +13,12 @@ public enum CableType implements StringIdentifiable {
         this.cableBlock = cableBlock;
     }
 
+    @Override
     public String toString() {
         return this.name();
     }
 
+    @Override
     public String asString() {
         return this.name();
     }

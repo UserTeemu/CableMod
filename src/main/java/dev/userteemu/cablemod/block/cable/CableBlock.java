@@ -35,6 +35,7 @@ public class CableBlock extends Block implements Waterloggable {
         this.setDefaultState(this.stateManager.getDefaultState().with(WATERLOGGED, false).with(CABLE_SHAPE, CableShape.NORTH_SOUTH));
     }
 
+    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(WATERLOGGED, CABLE_SHAPE);
     }
@@ -43,18 +44,22 @@ public class CableBlock extends Block implements Waterloggable {
         return state.get(CABLE_SHAPE).connectsTo(direction);
     }
 
+    @Override
     public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
         return false;
     }
 
+    @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         return state.get(CABLE_SHAPE).cableShape;
     }
 
+    @Override
     public FluidState getFluidState(BlockState state) {
         return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
     }
 
+    @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (!world.isClient && !state.isOf(newState.getBlock())) {
             CompletableFuture.runAsync(() -> {
@@ -66,6 +71,7 @@ public class CableBlock extends Block implements Waterloggable {
         super.onStateReplaced(state, world, pos, newState, false);
     }
 
+    @Override
     @Nullable
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         boolean waterlogged = ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER;
@@ -73,6 +79,7 @@ public class CableBlock extends Block implements Waterloggable {
         return this.getDefaultState().with(WATERLOGGED, waterlogged).with(CABLE_SHAPE, shape);
     }
 
+    @Override
     public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
         if (state.get(WATERLOGGED)) {
             world.getFluidTickScheduler().schedule(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
@@ -81,6 +88,7 @@ public class CableBlock extends Block implements Waterloggable {
         return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
     }
 
+    @Override
     public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
         if (!world.isClient && world.getBlockState(pos).isOf(this)) {
             attachToOtherCables(world, pos, state);

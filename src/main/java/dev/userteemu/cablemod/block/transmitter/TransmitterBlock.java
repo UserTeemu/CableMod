@@ -56,6 +56,7 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
         }
     }
 
+    @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         Direction direction = null;
         int directionsWithCables = 0;
@@ -101,6 +102,7 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
         }
     }
 
+    @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (!world.isClient && !state.isOf(newState.getBlock())) {
             TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
@@ -112,6 +114,7 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
         super.onStateReplaced(state, world, pos, newState, false);
     }
 
+    @Override
     public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
         if (!world.isClient) {
             TransmitterBlockEntity blockEntity = state.get(READY) ? getBlockEntity(pos, world) : null; // if not ready, it's null to save resources (because the field isn't actually used)
@@ -145,10 +148,12 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
         return blockEntity instanceof TransmitterBlockEntity ? (TransmitterBlockEntity)blockEntity : null;
     }
 
+    @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new TransmitterBlockEntity(pos, state);
     }
 
+    @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         return BlockWithEntity.checkType(type, TRANSMITTER_BLOCK_ENTITY, world.isClient ? null : this::serverTick);
@@ -160,6 +165,7 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
         }
     }
 
+    @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         Direction facing = state.get(FACING);
         return VoxelShapes.union(
@@ -169,31 +175,38 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
         );
     }
 
+    @Override
     public BlockState rotate(BlockState state, BlockRotation rotation) {
         return state.with(FACING, rotation.rotate(state.get(FACING)));
     }
 
+    @Override
     public BlockState mirror(BlockState state, BlockMirror mirror) {
         return state.rotate(mirror.getRotation(state.get(FACING)));
     }
 
+    @Override
     public int getStrongRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
         return state.getWeakRedstonePower(world, pos, direction);
     }
 
+    @Override
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
         if (state.get(IS_SENDER)) return 0;
         return state.get(FACING) == direction ? state.get(POWER) : 0;
     }
 
+    @Override
     public boolean emitsRedstonePower(BlockState state) {
         return true;
     }
 
+    @Override
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
     }
 
+    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(READY, FACING, IS_SENDER, POWER);
     }
