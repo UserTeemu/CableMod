@@ -24,12 +24,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
+import static net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags.PICKAXES;
+
 public class CableBlock extends Block implements Waterloggable {
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
     public static final EnumProperty<CableShape> CABLE_SHAPE = EnumProperty.of("cable_shape", CableShape.class);
 
     public CableBlock() {
-        super(FabricBlockSettings.of(Material.METAL).strength(4F).nonOpaque());
+        super(FabricBlockSettings.of(Material.METAL).strength(2F, 6F).nonOpaque().breakByTool(PICKAXES));
         this.setDefaultState(this.stateManager.getDefaultState().with(WATERLOGGED, false).with(CABLE_SHAPE, CableShape.NORTH_SOUTH));
     }
 

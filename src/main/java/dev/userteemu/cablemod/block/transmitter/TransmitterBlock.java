@@ -29,9 +29,11 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
 import static dev.userteemu.cablemod.CableMod.*;
+import static net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags.PICKAXES;
 
 public class TransmitterBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
@@ -40,7 +42,7 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
     public static final IntProperty POWER = Properties.POWER;
 
     public TransmitterBlock() {
-        super(FabricBlockSettings.of(Material.DECORATION).breakInstantly().sounds(BlockSoundGroup.WOOD)); // same settings as redstone repeaters
+        super(FabricBlockSettings.of(Material.DECORATION).strength(1F, 4F).nonOpaque().breakByTool(PICKAXES).sounds(BlockSoundGroup.WOOD));
         this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(POWER, 0).with(IS_SENDER, false).with(READY, false));
     }
 
