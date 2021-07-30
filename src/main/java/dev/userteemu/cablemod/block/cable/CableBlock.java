@@ -97,8 +97,8 @@ public class CableBlock extends Block implements Waterloggable {
 
     private void attachToOtherCables(World world, BlockPos pos, BlockState state) {
         CableShape currentShape = state.get(CABLE_SHAPE);
-        boolean beginningConnected = cableIsConnectedInDirection(world, pos.offset(currentShape.from), currentShape.from.getOpposite(), this);
-        boolean endConnected = cableIsConnectedInDirection(world, pos.offset(currentShape.to), currentShape.to.getOpposite(), this);
+        boolean beginningConnected = cableOrTransmitterIsConnectedInDirection(world, pos.offset(currentShape.from), currentShape.from.getOpposite(), this);
+        boolean endConnected = cableOrTransmitterIsConnectedInDirection(world, pos.offset(currentShape.to), currentShape.to.getOpposite(), this);
 
         if (!beginningConnected) {
             state = state.with(CABLE_SHAPE, attachCable(world, pos, currentShape, true));
@@ -109,29 +109,6 @@ public class CableBlock extends Block implements Waterloggable {
         if (!beginningConnected || !endConnected) {
             world.setBlockState(pos, state);
         }
-    }
-
-    private CableShape getPlacementShape(ItemPlacementContext ctx) {
-        World world = ctx.getWorld();
-        BlockPos pos = ctx.getBlockPos();
-
-        Direction[] possibleDirections = ctx.getPlacementDirections();
-        Direction firstDirection = ctx.getSide().getOpposite();
-        Direction secondDirection = ctx.getPlayerLookDirection().getOpposite();
-
-        for (Direction direction : possibleDirections) {
-            if (direction == firstDirection) continue;
-            BlockState tempState = world.getBlockState(pos.offset(direction));
-            if (
-                    (tempState.isOf(this) && !cableIsConnected(world, pos, tempState, this)) ||
-                    (tempState.isOf(CableMod.TRANSMITTER_BLOCK) && tempState.get(TransmitterBlock.FACING).getOpposite() == direction)
-            ) {
-                secondDirection = direction;
-                break;
-            }
-        }
-
-        return CableShape.shapeOf(firstDirection, secondDirection);
     }
 
     private CableShape attachCable(World world, BlockPos pos, CableShape currentShape, boolean beginning) {
@@ -147,15 +124,37 @@ public class CableBlock extends Block implements Waterloggable {
         return currentShape;
     }
 
-    public static boolean cableIsConnected(World world, BlockPos pos, BlockState state, CableBlock cableType) {
-        CableShape shape = state.get(CABLE_SHAPE);
-        return
-                cableIsConnectedInDirection(world, pos, shape.from, cableType) &&
-                cableIsConnectedInDirection(world, pos, shape.to, cableType);
+    private CableShape getPlacementShape(ItemPlacementContext ctx) {
+        World world = ctx.getWorld();
+        BlockPos pos = ctx.getBlockPos();
+
+        Direction[] possibleDirections = ctx.getPlacementDirections();
+        Direction firstDirection = ctx.getSide().getOpposite();
+        Direction secondDirection = ctx.getPlayerLookDirection().getOpposite();
+
+        for (Direction direction : possibleDirections) {
+            if (direction == firstDirection) continue;
+            BlockPos tempPos = pos.offset(direction);
+
+            if (cableOrTransmitterIsConnectedInDirection(world, tempPos, direction.getOpposite(), this)) {
+                secondDirection = direction;
+                break;
+            }
+        }
+
+        return CableShape.shapeOf(firstDirection, secondDirection);
     }
 
-    public static boolean cableIsConnectedInDirection(World world, BlockPos pos, Direction direction, CableBlock cableType) {
-        BlockState fromState = world.getBlockState(pos);
-        return fromState.isOf(cableType) && fromState.get(CABLE_SHAPE).connectsTo(direction);
+    public static boolean cableIsConnectedInDirection(BlockState state, Direction direction, CableBlock cableType) {
+        return state.isOf(cableType) && state.get(CABLE_SHAPE).connectsTo(direction);
+    }
+
+    public static boolean transmitterIsConnectedInDirection(BlockState state, Direction direction) {
+        return state.isOf(CableMod.TRANSMITTER_BLOCK) && state.get(TransmitterBlock.FACING) == direction;
+    }
+
+    public static boolean cableOrTransmitterIsConnectedInDirection(World world, BlockPos pos, Direction direction, CableBlock cableType) {
+        BlockState state = world.getBlockState(pos);
+        return cableIsConnectedInDirection(state, direction, cableType) || transmitterIsConnectedInDirection(state, direction);
     }
 }
