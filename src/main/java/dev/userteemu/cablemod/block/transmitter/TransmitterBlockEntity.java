@@ -55,9 +55,9 @@ public class TransmitterBlockEntity extends BlockEntity {
         }
     }
 
-    public void sendSignal(int inputPower, World world) {
+    public void sendSignal(int inputPower, World world, BlockState state) {
         if (cableRoute == null) return;
-
+        world.setBlockState(pos, state.with(POWER, inputPower), Block.NOTIFY_LISTENERS);
         BlockPos otherTransmitterPos = cableRoute.getOther(pos);
         BlockState receiverBlockState = world.getBlockState(otherTransmitterPos);
         if (receiverBlockState == null || !receiverBlockState.isOf(TRANSMITTER_BLOCK)) return;
@@ -103,10 +103,14 @@ public class TransmitterBlockEntity extends BlockEntity {
 
         BlockState state = world.getBlockState(pos);
         if (state != null) {
-            world.setBlockState(pos, state.with(READY, true).with(IS_SENDER, isSender), Block.NOTIFY_LISTENERS);
+            world.setBlockState(pos, state = state.with(READY, true).with(IS_SENDER, isSender), Block.NOTIFY_LISTENERS);
             world.updateNeighbors(pos.offset(state.get(FACING).getOpposite()), state.getBlock());
         }
 
         world.playSound(null, pos, SoundEvents.BLOCK_STONE_BUTTON_CLICK_OFF, SoundCategory.BLOCKS, 0.3F, 0.5F);
+
+        if (isSender && state != null) {
+            sendSignal(getGottenRedstonePower(world, pos, state), world, state);
+        }
     }
 }

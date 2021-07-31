@@ -123,13 +123,10 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
                 checkCableChanges(cableRoute, state, world, pos);
             }
 
-            if (state.get(IS_SENDER)) {
-                int gottenRedstonePower = world.getEmittedRedstonePower(pos.offset(state.get(FACING).getOpposite()), state.get(FACING).getOpposite());
+            if (state.get(IS_SENDER) && blockEntity != null) {
+                int gottenRedstonePower = getGottenRedstonePower(world, pos, state);
                 if (state.get(POWER) != gottenRedstonePower) {
-                    world.setBlockState(pos, state.with(POWER, gottenRedstonePower), Block.NOTIFY_LISTENERS);
-                    if (blockEntity != null) {
-                        blockEntity.sendSignal(gottenRedstonePower, world);
-                    }
+                    blockEntity.sendSignal(gottenRedstonePower, world, state);
                 }
             }
         }
@@ -209,6 +206,10 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(READY, FACING, IS_SENDER, POWER);
+    }
+
+    public static int getGottenRedstonePower(World world, BlockPos pos, BlockState state) {
+        return world.getEmittedRedstonePower(pos.offset(state.get(FACING).getOpposite()), state.get(FACING).getOpposite());
     }
 
     private static class Hitboxes {
