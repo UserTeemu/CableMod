@@ -27,6 +27,8 @@ public class TransmitterBlockEntity extends BlockEntity {
     @Nullable
     public CompletableFuture<CableRoute> cableRouteTrace = null;
 
+    public int traceCoolDown = 0;
+
     public TransmitterBlockEntity(BlockPos pos, BlockState state) {
         super(CableMod.TRANSMITTER_BLOCK_ENTITY, pos, state);
     }
@@ -40,6 +42,8 @@ public class TransmitterBlockEntity extends BlockEntity {
     }
 
     public void serverTick(World world, BlockPos pos, BlockState state) {
+        if (traceCoolDown > 0) traceCoolDown--;
+
         if (cableRouteTrace != null && cableRouteTrace.isDone()) {
             try {
                 CableRoute result = cableRouteTrace.get();
@@ -48,6 +52,7 @@ public class TransmitterBlockEntity extends BlockEntity {
                 CableMod.LOGGER.warn("Error while setting up cable route result from cable tracing operation", e);
             }
             cableRouteTrace = null;
+            traceCoolDown = 100; // 5 seconds at 20 tps
         }
 
         if (cableRoute != null && cableRoute.disposalScheduled) {

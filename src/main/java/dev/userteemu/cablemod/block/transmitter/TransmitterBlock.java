@@ -88,7 +88,10 @@ public class TransmitterBlock extends BlockWithEntity implements BlockEntityProv
         TransmitterBlockEntity blockEntity = getBlockEntity(pos, world);
 
         if (blockEntity != null && Hitboxes.isHittingButton(state.get(FACING), hit.getPos().subtract(pos.getX(), pos.getY(), pos.getZ()), 0.03D)) {
-            if (blockEntity.cableRouteTrace != null) return ActionResult.FAIL;
+            if (blockEntity.cableRouteTrace != null || blockEntity.traceCoolDown > 0) {
+                world.playSound(null, pos, SoundEvents.BLOCK_WOODEN_BUTTON_CLICK_OFF, SoundCategory.BLOCKS, 0.3F, 0.6F);
+                return ActionResult.CONSUME;
+            }
             if (!world.isClient()) {
                 if (blockEntity.cableRoute != null) {
                     blockEntity.cableRoute.dispose(world);
