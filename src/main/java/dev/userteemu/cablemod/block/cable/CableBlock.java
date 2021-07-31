@@ -63,8 +63,10 @@ public class CableBlock extends Block implements Waterloggable {
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (!world.isClient && !state.isOf(newState.getBlock())) {
             CompletableFuture.runAsync(() -> {
-                CableRoute route = CableTracer.getCableRouteOfCable(pos, state, world);
-                if (route != null) route.disposalScheduled = true;
+                BlockPos transmitterPos = CableTracer.tracePairedTransmitter(pos, state, world);
+                if (transmitterPos != null) {
+                    CableMod.markTransmitterToBeDisposed(world, transmitterPos);
+                }
             });
         }
 

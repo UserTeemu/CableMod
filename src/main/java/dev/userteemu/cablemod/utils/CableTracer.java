@@ -24,16 +24,15 @@ import static dev.userteemu.cablemod.block.cable.CableType.FIBER;
  */
 public class CableTracer {
     /**
-     * Tries to retrieve a cable route that this cable is in by tracing a transmitter and getting its cable route.
-     * If a transmitter isn't found in one end, there can't (or at least shouldn't) be a cable route anyway, so there is no point in trying the other way. In such case, null is returned.
+     * Tries to trace a paired transmitter that this cable is connected to.
      * @param beginningPos position of a cable block
-     * @return traced transmitter's CableRoute, null if there is no transmitter or the route is null
+     * @return traced transmitter's position, null if no transmitter is found
      */
     @Nullable
-    public static CableRoute getCableRouteOfCable(@NotNull BlockPos beginningPos, BlockState state, @NotNull WorldAccess world) {
+    public static BlockPos tracePairedTransmitter(@NotNull BlockPos beginningPos, BlockState state, @NotNull WorldAccess world) {
         BlockPos pos = beginningPos;
         CableShape lastShape = state.get(CABLE_SHAPE);
-        Direction lastDirection = lastShape.to; // either "from" or "to" direction of the shape, doesn't matter which
+        Direction lastDirection = lastShape.to; // either "from" or "to" direction of the shape, doesn't matter which, because if there isn't a paired transmitter in one end, the one in the other end can't be paired either.
 
         CableType cableType = state.isOf(COPPER.cableBlock) ? COPPER : state.isOf(FIBER.cableBlock) ? FIBER : null;
         if (cableType == null) return null;
@@ -46,9 +45,8 @@ public class CableTracer {
                 pos = tempPos;
                 lastShape = tempState.get(CABLE_SHAPE);
                 lastDirection = direction;
-            } else if (tempState.isOf(CableMod.TRANSMITTER_BLOCK) && tempState.get(TransmitterBlock.FACING) == direction.getOpposite()) {
-                TransmitterBlockEntity blockEntity = TransmitterBlock.getBlockEntity(tempPos, world);
-                return blockEntity != null ? blockEntity.cableRoute : null;
+            } else if (tempState.isOf(CableMod.TRANSMITTER_BLOCK) && tempState.get(TransmitterBlock.FACING) == direction.getOpposite() && tempState.get(TransmitterBlock.READY)) {
+                return tempPos;
             }
         }
     }

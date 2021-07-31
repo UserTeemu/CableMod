@@ -47,7 +47,6 @@ public class CableRoute {
     }
 
     public void dispose(WorldAccess world) {
-        disposalScheduled = false;
         disposeEnd(world, receiverPos, true);
         disposeEnd(world, senderPos, true);
     }
@@ -56,7 +55,6 @@ public class CableRoute {
      * Dispose, but a specific transmitter position is given special arguments (state and canSetBlockState)
      */
     public void dispose(WorldAccess world, BlockPos pos, BlockState state, boolean canSetBlockState) {
-        disposalScheduled = false;
         if (senderPos.equals(pos)) {
             disposeEnd(world, state, senderPos, canSetBlockState);
             disposeEnd(world, receiverPos, true);
