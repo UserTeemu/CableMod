@@ -48,7 +48,6 @@ public class CableMod implements ModInitializer {
 		TRANSMITTER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, new Identifier(modid, "transmitter"), FabricBlockEntityTypeBuilder.create(TransmitterBlockEntity::new, TRANSMITTER_BLOCK).build(null));
 
 		ServerTickEvents.START_WORLD_TICK.register(this::disposeDisposableTransmitters);
-		ClientTickEvents.START_WORLD_TICK.register(this::disposeDisposableTransmitters); // needed for singleplayer
 	}
 
 	private void registerBlockWithItem(String name, Block block, ItemGroup itemGroup) {
@@ -57,19 +56,17 @@ public class CableMod implements ModInitializer {
 	}
 
 	public void disposeDisposableTransmitters(World world) {
-		if (!world.isClient) {
-			Set<BlockPos> blocks = transmittersToBeDisposed.get(world);
-			if (blocks != null) {
-				for (BlockPos pos : blocks) {
-					BlockState state = world.getBlockState(pos);
-					if (state.hasBlockEntity() && state.isOf(TRANSMITTER_BLOCK)) {
-						TransmitterBlockEntity blockEntity = TransmitterBlock.getBlockEntity(pos, world);
-						if (blockEntity != null && blockEntity.cableRoute != null) {
-							blockEntity.cableRoute.dispose(world);
-						}
+		Set<BlockPos> blocks = transmittersToBeDisposed.get(world);
+		if (blocks != null) {
+			for (BlockPos pos : blocks) {
+				BlockState state = world.getBlockState(pos);
+				if (state.hasBlockEntity() && state.isOf(TRANSMITTER_BLOCK)) {
+					TransmitterBlockEntity blockEntity = TransmitterBlock.getBlockEntity(pos, world);
+					if (blockEntity != null && blockEntity.cableRoute != null) {
+						blockEntity.cableRoute.dispose(world);
 					}
-					blocks.remove(pos);
 				}
+				blocks.remove(pos);
 			}
 		}
 	}
